@@ -104,14 +104,22 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# API key from Streamlit secrets or environment variable
-# This makes the app compatible with both local development and Streamlit Cloud deployment
+# API key from various possible sources - handle all deployment scenarios
+# Order of precedence: 1) Streamlit secrets, 2) Environment variable, 3) Hardcoded for demo
+MISTRAL_API_KEY = None
+
+# Try to get from Streamlit secrets first (for Streamlit Cloud)
 try:
     MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
 except:
+    # Not found in secrets, try environment variable (for local development)
     MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+    
+    # If still not found, use the hardcoded key for demo purposes
+    if not MISTRAL_API_KEY:
+        MISTRAL_API_KEY = "KgkyAsK33bPBZ8FVRbmIjvJAJH7SVhpW"
 
-# Display warning if no API key is found
+# Display warning if still no API key is found (should not happen now)
 if not MISTRAL_API_KEY:
     st.warning("⚠️ No Mistral API key found. Please add your API key in Streamlit secrets or .env file for the application to work properly.")
 
