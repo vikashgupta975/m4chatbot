@@ -113,66 +113,121 @@ st.markdown('<h1 style="font-size: 2.5rem;">Vikash Gupta (12321380)</h1>', unsaf
 st.markdown('<h2 style="font-size: 1.8rem;">Advanced Math Problem Solver</h2>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# Two-column layout
-col1, col2 = st.columns([2, 1])
+# Main container with tabs
+tab1, tab2 = st.tabs(["Chat", "Help & Examples"])
 
-with col2:
-    st.markdown('<div class="info-box">', unsafe_allow_html=True)
+with tab1:
+    # Chat interface
+    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+    
+    # Welcome message at the top of chat
+    if not st.session_state.messages:
+        st.markdown('''
+        <div style="text-align: center; padding: 1.5rem; background-color: #E3F2FD; border-radius: 10px; margin-bottom: 1.5rem;">
+            <h3 style="margin-bottom: 0.5rem;">Welcome to Math Problem Solver!</h3>
+            <p>Ask me any math question and I'll provide a detailed, step-by-step solution.</p>
+            <div style="margin-top: 0.5rem; display: flex; justify-content: center; gap: 10px;">
+                <span class="math-symbol">∑</span>
+                <span class="math-symbol" style="animation-delay: 0.5s;">∫</span>
+                <span class="math-symbol" style="animation-delay: 1s;">π</span>
+                <span class="math-symbol" style="animation-delay: 1.5s;">√</span>
+                <span class="math-symbol" style="animation-delay: 2s;">∞</span>
+            </div>
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    # Quick example buttons
+    if not st.session_state.messages:
+        st.markdown('<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem;">', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button("Solve x² - 4 = 0", key="example1"):
+                st.session_state.messages.append({"role": "user", "content": "Solve x² - 4 = 0"})
+                st.rerun()
+        with col2:
+            if st.button("Derivative of sin(x)²", key="example2"):
+                st.session_state.messages.append({"role": "user", "content": "Find the derivative of sin(x)²"})
+                st.rerun()
+        with col3:
+            if st.button("Integrate x³ + 2x²", key="example3"):
+                st.session_state.messages.append({"role": "user", "content": "Integrate x³ + 2x² + 3x"})
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+    # Display chat messages with custom styling
+    for message in st.session_state.messages:
+        if message["role"] == "user":
+            st.markdown(f'<div class="user-message">{message["content"]}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="assistant-message">{message["content"]}</div>', unsafe_allow_html=True)
+    
+    # User input with custom styling
+    user_prompt = st.chat_input("Type your math problem here...", key="math_problem_input")
+
+with tab2:
+    # Help section with decorative elements
+    st.markdown('<div class="info-box" style="margin-bottom: 1.5rem;">', unsafe_allow_html=True)
     st.markdown("""
-    ### How to Use
+    ### How to Use the Math Solver
     1. **Enter your math problem** in the chat box
     2. **Wait for the solution** to be generated
     3. **Review the step-by-step explanation**
     4. **Ask follow-up questions** if needed
-    
-    ### Example Problems
-    - Solve x² - 4 = 0
-    - Find the derivative of sin(x)²
-    - Integrate x³ + 2x² + 3x
-    - What is the limit of (1+x)^(1/x) as x→0?
-    - Solve the system: 2x + y = 5, x - y = 1
     """)
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Add decorative math elements
+    # Example problems in a more visually appealing format
+    st.markdown('<div class="info-box">', unsafe_allow_html=True)
+    st.markdown("""
+    ### Example Problems You Can Ask
+    """)
+    
+    example_cols = st.columns(2)
+    with example_cols[0]:
+        st.markdown('''
+        <div style="padding: 10px; border-left: 3px solid #1E88E5; margin-bottom: 10px;">
+            <strong>Algebra</strong><br>
+            - Solve x² - 4 = 0<br>
+            - Solve the system: 2x + y = 5, x - y = 1<br>
+            - Factor x³ - 3x² + 3x - 1
+        </div>
+        <div style="padding: 10px; border-left: 3px solid #43A047; margin-bottom: 10px;">
+            <strong>Calculus</strong><br>
+            - Find the derivative of sin(x)²<br>
+            - Integrate x³ + 2x² + 3x<br>
+            - What is the limit of (1+x)^(1/x) as x→0?
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    with example_cols[1]:
+        st.markdown('''
+        <div style="padding: 10px; border-left: 3px solid #FFA000; margin-bottom: 10px;">
+            <strong>Trigonometry</strong><br>
+            - Simplify sin²(x) + cos²(x)<br>
+            - Solve sin(x) = 0.5<br>
+            - Convert 30° to radians
+        </div>
+        <div style="padding: 10px; border-left: 3px solid #7B1FA2; margin-bottom: 10px;">
+            <strong>Statistics</strong><br>
+            - Calculate the mean of 2, 4, 6, 8, 10<br>
+            - Find the standard deviation of [1,2,3,4,5]<br>
+            - What is the probability of getting heads twice in a row?
+        </div>
+        ''', unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Famous math equations
     st.markdown('<div style="text-align: center; margin-top: 2rem;">', unsafe_allow_html=True)
+    st.markdown('### Famous Math Equations')
     st.latex(r'''
     \begin{align}
     e^{i\pi} + 1 &= 0 \\
     \int_{-\infty}^{\infty} e^{-x^2} dx &= \sqrt{\pi} \\
-    \frac{d}{dx}[e^x] &= e^x
+    E &= mc^2
     \end{align}
     ''')
-    
-    # Add floating math symbols
-    st.markdown('''
-    <div style="text-align: center; margin-top: 1rem;">
-        <span class="math-symbol">∑</span>
-        <span class="math-symbol" style="animation-delay: 0.5s;">∫</span>
-        <span class="math-symbol" style="animation-delay: 1s;">π</span>
-        <span class="math-symbol" style="animation-delay: 1.5s;">√</span>
-        <span class="math-symbol" style="animation-delay: 2s;">∞</span>
-    </div>
-    ''', unsafe_allow_html=True)
-    
     st.markdown('</div>', unsafe_allow_html=True)
-
-with col1:
-    st.markdown('<div class="chat-container">', unsafe_allow_html=True)
-
-# Display chat messages with custom styling
-for message in st.session_state.messages:
-    if message["role"] == "user":
-        st.markdown(f'<div class="user-message">{message["content"]}</div>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<div class="assistant-message">{message["content"]}</div>', unsafe_allow_html=True)
-
-# Add a separator before the input
-st.markdown('<hr style="margin: 1.5rem 0; border-color: #E0E0E0;">', unsafe_allow_html=True)
-
-# User input with custom styling
-st.markdown('<div style="margin-bottom: 1rem; font-weight: bold;">Enter your math problem:</div>', unsafe_allow_html=True)
-user_prompt = st.chat_input("Type your math problem here...", key="math_problem_input")
 
 # Process user input
 if user_prompt:
