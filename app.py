@@ -110,7 +110,11 @@ if 'messages' not in st.session_state:
 # Application title and description
 st.markdown('<div class="title-container">', unsafe_allow_html=True)
 st.markdown('<h1 style="font-size: 2.5rem;">Vikash Gupta (12321380)</h1>', unsafe_allow_html=True)
-st.markdown('<h2 style="font-size: 1.8rem;">Advanced Math Problem Solver</h2>', unsafe_allow_html=True)
+st.markdown('<div style="display: flex; justify-content: center; gap: 20px; margin-top: 0.5rem;">', unsafe_allow_html=True)
+st.markdown('<div style="font-size: 1.3rem;">Khushdeep Saini (12316852)</div>', unsafe_allow_html=True)
+st.markdown('<div style="font-size: 1.3rem;">Satyam Upadhyay (12318963)</div>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+st.markdown('<h2 style="font-size: 1.8rem; margin-top: 0.7rem;">Advanced Math Problem Solver</h2>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Main container with tabs
@@ -277,7 +281,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Footer with gradient
 st.markdown("""
 <div class="footer">
-    <div style="font-size: 1.2rem; font-weight: bold;">Vikash Gupta (12321380)</div>
+    <div style="font-size: 1.2rem; font-weight: bold;">Team Members</div>
+    <div style="font-size: 0.9rem; margin-top: 0.5rem;">Vikash Gupta (12321380) | Khushdeep Saini (12316852) | Satyam Upadhyay (12318963)</div>
     <div style="font-size: 0.9rem; margin-top: 0.5rem;">Powered by Mistral AI | Advanced Math Problem Solver</div>
 </div>
 """, unsafe_allow_html=True)
