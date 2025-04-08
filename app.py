@@ -1,7 +1,7 @@
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from utils import generate_math_solution
+from utils import generate_math_solution, generate_math_hint
 
 # Load environment variables
 load_dotenv()
@@ -104,8 +104,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# API key from environment variable
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
+# API key from Streamlit secrets or environment variable
+# This makes the app compatible with both local development and Streamlit Cloud deployment
+try:
+    MISTRAL_API_KEY = st.secrets["MISTRAL_API_KEY"]
+except:
+    MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 # Initialize session state for chat history if it doesn't exist
 if 'messages' not in st.session_state:
@@ -178,10 +182,20 @@ with tab2:
     st.markdown("""
     ### How to Use the Math Solver
     1. **Enter your math problem** in the chat box
-    2. **Wait for the solution** to be generated
-    3. **Review the step-by-step explanation**
-    4. **Ask follow-up questions** if needed
+    2. **Toggle Hint Mode** if you only want a hint rather than a full solution
+    3. **Wait for the response** to be generated
+    4. **Review the explanation** (hint or full solution)
+    5. **Ask follow-up questions** if needed
     """)
+    
+    # Add info about the hint feature
+    st.markdown("""
+    ### About Hint Mode
+    - **Solution Mode**: Provides complete step-by-step solutions to problems
+    - **Hint Mode**: Gives helpful guidance without revealing the full solution
+    - Toggle between modes using the switch at the bottom of the chat
+    """)
+    
     st.markdown('</div>', unsafe_allow_html=True)
     
     # Example problems in a more visually appealing format
@@ -237,6 +251,10 @@ with tab2:
     ''')
     st.markdown('</div>', unsafe_allow_html=True)
 
+# Initialize mode for hint vs solution if not in session state
+if 'hint_mode' not in st.session_state:
+    st.session_state.hint_mode = False
+
 # Process user input
 if user_prompt:
     # Add user message to chat history
@@ -247,22 +265,46 @@ if user_prompt:
     
     # Display thinking message
     thinking_placeholder = st.empty()
-    thinking_placeholder.markdown(
-        '<div style="padding: 1rem; background-color: #F5F5F5; border-radius: 10px; margin-bottom: 1rem; border-left: 5px solid #FFA726;">'
-        '<i>Solving your math problem...</i> <div class="loader"></div>'
-        '</div>', 
-        unsafe_allow_html=True
-    )
+    
+    # Show different loading message based on hint mode
+    if st.session_state.hint_mode:
+        thinking_placeholder.markdown(
+            '<div style="padding: 1rem; background-color: #F5F5F5; border-radius: 10px; margin-bottom: 1rem; border-left: 5px solid #FFA726;">'
+            '<i>Generating hint for your math problem...</i> <div class="loader"></div>'
+            '</div>', 
+            unsafe_allow_html=True
+        )
+    else:
+        thinking_placeholder.markdown(
+            '<div style="padding: 1rem; background-color: #F5F5F5; border-radius: 10px; margin-bottom: 1rem; border-left: 5px solid #FFA726;">'
+            '<i>Solving your math problem...</i> <div class="loader"></div>'
+            '</div>', 
+            unsafe_allow_html=True
+        )
     
     try:
-        # Call the Mistral API to solve the math problem
-        solution = generate_math_solution(user_prompt, MISTRAL_API_KEY)
-        
-        # Update thinking message with solution
-        thinking_placeholder.markdown(f'<div class="assistant-message">{solution}</div>', unsafe_allow_html=True)
-        
-        # Add assistant message to chat history
-        st.session_state.messages.append({"role": "assistant", "content": solution})
+        # Based on mode, either generate a hint or full solution
+        if st.session_state.hint_mode:
+            # Call the Mistral API to generate a hint
+            response = generate_math_hint(user_prompt, MISTRAL_API_KEY)
+            
+            # Add hint indicator to the response
+            response_with_header = f"**🔍 HINT:**\n\n{response}"
+            
+            # Update thinking message with hint
+            thinking_placeholder.markdown(f'<div class="assistant-message" style="border-left: 5px solid #FFC107;">{response_with_header}</div>', unsafe_allow_html=True)
+            
+            # Add assistant message to chat history with hint indicator
+            st.session_state.messages.append({"role": "assistant", "content": response_with_header})
+        else:
+            # Call the Mistral API to solve the math problem
+            response = generate_math_solution(user_prompt, MISTRAL_API_KEY)
+            
+            # Update thinking message with solution
+            thinking_placeholder.markdown(f'<div class="assistant-message">{response}</div>', unsafe_allow_html=True)
+            
+            # Add assistant message to chat history
+            st.session_state.messages.append({"role": "assistant", "content": response})
         
     except Exception as e:
         error_message = f"Error: {str(e)}"
@@ -276,10 +318,37 @@ if user_prompt:
 st.markdown('</div>', unsafe_allow_html=True)  # Close chat-container div
 
 # Control panel
-st.markdown('<div style="margin-top: 1.5rem; display: flex; justify-content: center;">', unsafe_allow_html=True)
-if st.button("🗑️ Clear Chat History", key="clear_button"):
-    st.session_state.messages = []
-    st.rerun()
+st.markdown('<div style="margin-top: 1.5rem;">', unsafe_allow_html=True)
+
+# Create columns for the controls
+col1, col2, col3 = st.columns([1, 1, 1])
+
+with col1:
+    # Toggle for hint mode with clear label
+    hint_mode = st.toggle("🔍 Hint Mode", value=st.session_state.hint_mode, 
+                          help="Toggle between providing full solutions or just helpful hints")
+    
+    # Update session state if changed
+    if hint_mode != st.session_state.hint_mode:
+        st.session_state.hint_mode = hint_mode
+        st.rerun()
+
+with col2:
+    # Button to clear chat history
+    if st.button("🗑️ Clear Chat History", key="clear_button"):
+        st.session_state.messages = []
+        st.rerun()
+
+with col3:
+    # Display current mode with appropriate styling
+    mode_text = "Current Mode: Hint" if st.session_state.hint_mode else "Current Mode: Solution"
+    mode_color = "#FFC107" if st.session_state.hint_mode else "#4CAF50"
+    st.markdown(f"""
+    <div style="text-align:center; padding:8px; border-radius:5px; background-color:{mode_color}; color:white; font-weight:bold;">
+        {mode_text}
+    </div>
+    """, unsafe_allow_html=True)
+
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Footer with gradient
