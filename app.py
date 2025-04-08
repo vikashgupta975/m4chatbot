@@ -111,6 +111,10 @@ try:
 except:
     MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
+# Display warning if no API key is found
+if not MISTRAL_API_KEY:
+    st.warning("⚠️ No Mistral API key found. Please add your API key in Streamlit secrets or .env file for the application to work properly.")
+
 # Initialize session state for chat history if it doesn't exist
 if 'messages' not in st.session_state:
     st.session_state.messages = []

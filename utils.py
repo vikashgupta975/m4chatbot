@@ -57,10 +57,19 @@ def generate_math_solution(problem, api_key):
         
     except requests.exceptions.RequestException as e:
         if hasattr(e, 'response') and e.response:
-            error_detail = e.response.text
-            return f"Error communicating with Mistral AI: {str(e)}\nDetails: {error_detail}"
+            # For specific status codes, give more helpful messages
+            if e.response.status_code == 401:
+                return "⚠️ API Key Error: The Mistral API key is invalid or missing. Please check your API key in the .env file or Streamlit secrets."
+            elif e.response.status_code == 403:
+                return "⚠️ API Access Error: Your API key doesn't have permission to use this Mistral model. Please check your API key permissions."
+            elif e.response.status_code == 429:
+                return "⚠️ Rate Limit Exceeded: Too many requests to the Mistral API. Please try again later."
+            else:
+                error_detail = e.response.text
+                return f"⚠️ Error communicating with Mistral AI: {str(e)}\nDetails: {error_detail}"
         else:
-            return f"Error communicating with Mistral AI: {str(e)}"
+            # Network connectivity issues
+            return f"⚠️ Network Error: Unable to connect to Mistral AI. Please check your internet connection and try again."
     
     except (KeyError, IndexError) as e:
         return f"Error parsing the Mistral AI response: {str(e)}"
@@ -127,10 +136,19 @@ def generate_math_hint(problem, api_key):
         
     except requests.exceptions.RequestException as e:
         if hasattr(e, 'response') and e.response:
-            error_detail = e.response.text
-            return f"Error generating hint: {str(e)}\nDetails: {error_detail}"
+            # For specific status codes, give more helpful messages
+            if e.response.status_code == 401:
+                return "⚠️ API Key Error: The Mistral API key is invalid or missing. Please check your API key in the .env file or Streamlit secrets."
+            elif e.response.status_code == 403:
+                return "⚠️ API Access Error: Your API key doesn't have permission to use this Mistral model. Please check your API key permissions."
+            elif e.response.status_code == 429:
+                return "⚠️ Rate Limit Exceeded: Too many requests to the Mistral API. Please try again later."
+            else:
+                error_detail = e.response.text
+                return f"⚠️ Error generating hint: {str(e)}\nDetails: {error_detail}"
         else:
-            return f"Error generating hint: {str(e)}"
+            # Network connectivity issues
+            return f"⚠️ Network Error: Unable to connect to Mistral AI. Please check your internet connection and try again."
     
     except (KeyError, IndexError) as e:
         return f"Error parsing the hint response: {str(e)}"
