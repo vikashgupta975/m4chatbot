@@ -1,6 +1,10 @@
 import streamlit as st
 import os
+from dotenv import load_dotenv
 from utils import generate_math_solution
+
+# Load environment variables
+load_dotenv()
 
 # Page configuration
 st.set_page_config(
@@ -100,8 +104,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# API key from environment variable or directly provided
-MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY", "KgkyAsK33bPBZ8FVRbmIjvJAJH7SVhpW")
+# API key from environment variable
+MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
 # Initialize session state for chat history if it doesn't exist
 if 'messages' not in st.session_state:
